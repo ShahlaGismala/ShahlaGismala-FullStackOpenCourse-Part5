@@ -38,56 +38,79 @@ describe('Blog app', () => {
   })
 
   describe('When logged in', () => {
-  beforeEach(async ({ page }) => {
-    // login before each test
-    await page.getByRole('textbox').first().fill('testuser')
-    await page.getByRole('textbox').last().fill('testpass')
-    await page.getByRole('button', { name: 'login' }).click()
-  })
+    beforeEach(async ({ page }) => {
+      // login before each test
+      await page.getByRole('textbox').first().fill('testuser')
+      await page.getByRole('textbox').last().fill('testpass')
+      await page.getByRole('button', { name: 'login' }).click()
+    })
 
-  test('a new blog can be created', async ({ page }) => {
-    await page.getByRole('button', { name: 'create new blog' }).click()
-    await page.getByPlaceholder('title').fill('Test Blog Title')
-    await page.getByPlaceholder('author').fill('Test Author')
-    await page.getByPlaceholder('url').fill('http://testurl.com')
-    await page.getByRole('button', { name: 'create' }).click()
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByPlaceholder('title').fill('Test Blog Title')
+      await page.getByPlaceholder('author').fill('Test Author')
+      await page.getByPlaceholder('url').fill('http://testurl.com')
+      await page.getByRole('button', { name: 'create' }).click()
 
-    const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Test Blog Title' })
-    await expect(blogEntry).toBeVisible()
-  })
+      const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Test Blog Title' })
+      await expect(blogEntry).toBeVisible()
+    })
 
-  test('a blog can be liked', async ({ page }) => {
-    await page.getByRole('button', { name: 'create new blog' }).click()
-    await page.getByPlaceholder('title').fill('Blog to like')
-    await page.getByPlaceholder('author').fill('Like Author')
-    await page.getByPlaceholder('url').fill('http://likeurl.com')
-    await page.getByRole('button', { name: 'create' }).click()
+    test('a blog can be liked', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByPlaceholder('title').fill('Blog to like')
+      await page.getByPlaceholder('author').fill('Like Author')
+      await page.getByPlaceholder('url').fill('http://likeurl.com')
+      await page.getByRole('button', { name: 'create' }).click()
 
-    const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Blog to like' })
-    await blogEntry.getByRole('button', { name: 'view' }).click()
-    await expect(blogEntry).toContainText('likes 0')
+      const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Blog to like' })
+      await blogEntry.getByRole('button', { name: 'view' }).click()
+      await expect(blogEntry).toContainText('likes 0')
 
-    await blogEntry.getByRole('button', { name: 'like' }).click()
-    await expect(blogEntry).toContainText('likes 1')
-  })
+      await blogEntry.getByRole('button', { name: 'like' }).click()
+      await expect(blogEntry).toContainText('likes 1')
+    })
 
-  test('the user who added the blog can delete it', async ({ page }) => {
-    await page.getByRole('button', { name: 'create new blog' }).click()
-    await page.getByPlaceholder('title').fill('Blog to delete')
-    await page.getByPlaceholder('author').fill('Delete Author')
-    await page.getByPlaceholder('url').fill('http://deleteurl.com')
-    await page.getByRole('button', { name: 'create' }).click()
+    test('the user who added the blog can delete it', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByPlaceholder('title').fill('Blog to delete')
+      await page.getByPlaceholder('author').fill('Delete Author')
+      await page.getByPlaceholder('url').fill('http://deleteurl.com')
+      await page.getByRole('button', { name: 'create' }).click()
 
-    const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Blog to delete' })
-    await expect(blogEntry).toBeVisible()
+      const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Blog to delete' })
+      await expect(blogEntry).toBeVisible()
 
-    await blogEntry.getByRole('button', { name: 'view' }).click()
-    await expect(blogEntry.getByRole('button', { name: 'remove' })).toBeVisible()
+      await blogEntry.getByRole('button', { name: 'view' }).click()
+      await expect(blogEntry.getByRole('button', { name: 'remove' })).toBeVisible()
 
-    page.once('dialog', dialog => dialog.accept())
-    await blogEntry.getByRole('button', { name: 'remove' }).click()
+      page.once('dialog', dialog => dialog.accept())
+      await blogEntry.getByRole('button', { name: 'remove' }).click()
 
-    await expect(blogEntry).not.toBeVisible()
+      await expect(blogEntry).not.toBeVisible()
+    })
+
+    test('only the creator sees the delete button', async ({ page, request }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByPlaceholder('title').fill('Creators blog')
+      await page.getByPlaceholder('author').fill('Creator')
+      await page.getByPlaceholder('url').fill('http://creator.com')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByRole('button', { name: 'logout' }).click()
+
+      await request.post('http://localhost:3003/api/users', {
+        data: { username: 'otheruser', name: 'Other User', password: 'otherpass' }
+      })
+
+      await page.getByRole('textbox').first().fill('otheruser')
+      await page.getByRole('textbox').last().fill('otherpass')
+      await page.getByRole('button', { name: 'login' }).click()
+
+      const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Creators blog' })
+      await blogEntry.getByRole('button', { name: 'view' }).click()
+
+      await expect(blogEntry.getByRole('button', { name: 'remove' })).not.toBeVisible()
   })
  
 })
