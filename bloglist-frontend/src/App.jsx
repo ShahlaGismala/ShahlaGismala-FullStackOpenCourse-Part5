@@ -59,7 +59,7 @@ const App = () => {
     try {
       blogFormRef.current.toggleVisibility()
       const createdBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(createdBlog))
+      setBlogs(currentBlogs => currentBlogs.concat(createdBlog))
       showNotification(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
     } catch {
       showNotification('failed to add blog', 'error')
@@ -67,11 +67,11 @@ const App = () => {
   }
 
   const handleBlogUpdate = (updatedBlog) => {
-    setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
+    setBlogs(currentBlogs => currentBlogs.map(b => (b.id === updatedBlog.id ? updatedBlog : b)))
   }
 
   const handleBlogDelete = (id) => {
-    setBlogs(blogs.filter(b => b.id !== id))
+    setBlogs(currentBlogs => currentBlogs.filter(b => b.id !== id))
   }
 
   if (user === null) {

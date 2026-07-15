@@ -101,7 +101,7 @@ describe('Blog app', () => {
 
       await request.post('http://localhost:3003/api/users', {
         data: { username: 'otheruser', name: 'Other User', password: 'otherpass' }
-      })
+     })
 
       await page.getByRole('textbox').first().fill('otheruser')
       await page.getByRole('textbox').last().fill('otherpass')
@@ -111,6 +111,42 @@ describe('Blog app', () => {
       await blogEntry.getByRole('button', { name: 'view' }).click()
 
       await expect(blogEntry.getByRole('button', { name: 'remove' })).not.toBeVisible()
+  })
+
+    test('blogs are ordered by likes, most liked first', async ({ page }) => {
+    const createBlog = async (title, author, url) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByPlaceholder('title').fill(title)
+      await page.getByPlaceholder('author').fill(author)
+      await page.getByPlaceholder('url').fill(url)
+      await page.getByRole('button', { name: 'create' }).click()
+      await expect(page.locator('[data-testid="blog"]').filter({ hasText: title })).toBeVisible()
+    }
+
+    await createBlog('First blog', 'Author 1', 'http://first.com')
+    await createBlog('Second blog', 'Author 2', 'http://second.com')
+    await createBlog('Third blog', 'Author 3', 'http://third.com')
+
+    const secondBlog = page.locator('[data-testid="blog"]').filter({ hasText: 'Second blog' })
+    const thirdBlog = page.locator('[data-testid="blog"]').filter({ hasText: 'Third blog' })
+
+    await expect(secondBlog).toBeVisible()
+    await expect(thirdBlog).toBeVisible()
+
+    await secondBlog.getByRole('button', { name: 'view' }).click()
+    await thirdBlog.getByRole('button', { name: 'view' }).click()
+
+    await expect(secondBlog.getByRole('button', { name: 'like' })).toBeVisible()
+    await expect(thirdBlog.getByRole('button', { name: 'like' })).toBeVisible()
+
+    await secondBlog.getByRole('button', { name: 'like' }).click()
+    await secondBlog.getByRole('button', { name: 'like' }).click()
+    await thirdBlog.getByRole('button', { name: 'like' }).click()
+
+    const blogs = page.locator('[data-testid="blog"]')
+    await expect(blogs.nth(0)).toContainText('Second blog')
+    await expect(blogs.nth(1)).toContainText('Third blog')
+    await expect(blogs.nth(2)).toContainText('First blog')
   })
  
 })
