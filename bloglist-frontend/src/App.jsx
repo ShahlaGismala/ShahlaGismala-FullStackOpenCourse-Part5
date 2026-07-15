@@ -54,9 +54,9 @@ const App = () => {
     blogService.setToken(null)
   }
 
-  const visibleBlogs = blogs.filter(
-    blog => blog.title !== 'I’ll Instantly Know A Writer Used ChatGPT When I See This'
-  )
+  const visibleBlogs = [...blogs]
+    .filter(blog => blog.title !== 'I’ll Instantly Know A Writer Used ChatGPT When I See This')
+    .sort((a, b) => b.likes - a.likes)
 
   const addBlog = async (blogObject) => {
     try {
@@ -70,8 +70,8 @@ const App = () => {
   }
 
   const handleBlogUpdate = (updatedBlog) => {
-  setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
-}
+    setBlogs(currentBlogs => currentBlogs.map(b => (b.id === updatedBlog.id ? updatedBlog : b)))
+  }
 
   if (user === null) {
     return (
