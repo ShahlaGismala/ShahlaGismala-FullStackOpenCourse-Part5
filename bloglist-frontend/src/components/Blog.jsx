@@ -21,7 +21,7 @@ const Blog = ({ blog, onUpdate }) => {
       user: blog.user?.id || blog.user,
     }
     const returned = await blogService.update(blog.id, updatedBlog)
-    onUpdate(returned)
+    onUpdate({ ...returned, user: blog.user })
   }
 
   return (
