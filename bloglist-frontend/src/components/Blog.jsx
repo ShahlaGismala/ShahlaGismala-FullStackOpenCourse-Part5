@@ -34,7 +34,7 @@ const Blog = ({ blog, onUpdate, onDelete, currentUser }) => {
   const isCreator = blog.user?.username === currentUser?.username
 
   return (
-    <div className="blog" style={blogStyle}>
+    <div className="blog" style={blogStyle} data-testid="blog">
       <div className="blogSummary">
         {blog.title} {blog.author}
         <button onClick={() => setDetailsVisible(!detailsVisible)}>

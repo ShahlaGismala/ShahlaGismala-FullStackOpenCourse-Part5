@@ -28,18 +28,23 @@ const BlogForm = ({ onCreate }) => {
         <div>
           author:
           <input
-            type="text"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-        </div>
-        <div>
-          url:
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
+        type="text"
+        value={title}
+        placeholder="title"
+        onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+        type="text"
+        value={author}
+        placeholder="author"
+        onChange={(e) => setAuthor(e.target.value)}
+        />
+        <input
+        type="text"
+        value={url}
+        placeholder="url"
+        onChange={(e) => setUrl(e.target.value)}
+        />
         </div>
         <button type="submit">create</button>
       </form>
