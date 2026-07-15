@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -42,9 +43,10 @@ const App = () => {
     blogService.setToken(null)
   }
 
-  const visibleBlogs = blogs.filter(
-    blog => blog.title !== 'I’ll Instantly Know A Writer Used ChatGPT When I See This'
-  )
+  const addBlog = async (blogObject) => {
+    const createdBlog = await blogService.create(blogObject)
+    setBlogs(blogs.concat(createdBlog))
+  }
 
   if (user === null) {
     return (
@@ -53,19 +55,11 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
           </div>
           <div>
             password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button type="submit">login</button>
         </form>
@@ -80,7 +74,8 @@ const App = () => {
         {user.name} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
-      {visibleBlogs.map(blog => (
+      <BlogForm onCreate={addBlog} />
+      {blogs.map(blog => (
         <Blog key={blog.id} blog={blog} />
       ))}
     </div>
