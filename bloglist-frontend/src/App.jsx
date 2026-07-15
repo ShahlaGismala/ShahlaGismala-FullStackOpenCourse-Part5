@@ -69,6 +69,10 @@ const App = () => {
     }
   }
 
+  const handleBlogUpdate = (updatedBlog) => {
+  setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
+}
+
   if (user === null) {
     return (
       <div>
@@ -102,7 +106,7 @@ const App = () => {
        </Togglable>
       
       {visibleBlogs.map(blog => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} onUpdate={handleBlogUpdate} />
       ))}
     </div>
   )
