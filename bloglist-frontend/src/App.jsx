@@ -3,12 +3,15 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [notificationType, setNotificationType] = useState('success')
 
   useEffect(() => {
     blogService.getAll().then(blogs => setBlogs(blogs))
@@ -23,6 +26,12 @@ const App = () => {
     }
   }, [])
 
+  const showNotification = (message, type = 'success') => {
+    setNotification(message)
+    setNotificationType(type)
+    setTimeout(() => setNotification(null), 5000)
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -33,7 +42,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      console.error('Wrong credentials')
+      showNotification('wrong username or password', 'error')
     }
   }
 
@@ -43,15 +52,25 @@ const App = () => {
     blogService.setToken(null)
   }
 
+  const visibleBlogs = blogs.filter(
+    blog => blog.title !== 'I’ll Instantly Know A Writer Used ChatGPT When I See This'
+  )
+
   const addBlog = async (blogObject) => {
-    const createdBlog = await blogService.create(blogObject)
-    setBlogs(blogs.concat(createdBlog))
+    try {
+      const createdBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(createdBlog))
+      showNotification(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
+    } catch (exception) {
+      showNotification('failed to add blog', 'error')
+    }
   }
 
   if (user === null) {
     return (
       <div>
         <h2>Log in to application</h2>
+        <Notification message={notification} type={notificationType} />
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -70,12 +89,13 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Notification message={notification} type={notificationType} />
       <p>
         {user.name} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
       <BlogForm onCreate={addBlog} />
-      {blogs.map(blog => (
+      {visibleBlogs.map(blog => (
         <Blog key={blog.id} blog={blog} />
       ))}
     </div>
