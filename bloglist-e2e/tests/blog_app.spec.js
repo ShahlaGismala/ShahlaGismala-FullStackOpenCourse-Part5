@@ -39,6 +39,7 @@ describe('Blog app', () => {
 
   describe('When logged in', () => {
   beforeEach(async ({ page }) => {
+    // login before each test
     await page.getByRole('textbox').first().fill('testuser')
     await page.getByRole('textbox').last().fill('testpass')
     await page.getByRole('button', { name: 'login' }).click()
@@ -63,17 +64,34 @@ describe('Blog app', () => {
     await page.getByRole('button', { name: 'create' }).click()
 
     const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Blog to like' })
-    await expect(blogEntry).toBeVisible()
-
     await blogEntry.getByRole('button', { name: 'view' }).click()
-
     await expect(blogEntry).toContainText('likes 0')
 
     await blogEntry.getByRole('button', { name: 'like' }).click()
-
     await expect(blogEntry).toContainText('likes 1')
   })
+
+  test('the user who added the blog can delete it', async ({ page }) => {
+    await page.getByRole('button', { name: 'create new blog' }).click()
+    await page.getByPlaceholder('title').fill('Blog to delete')
+    await page.getByPlaceholder('author').fill('Delete Author')
+    await page.getByPlaceholder('url').fill('http://deleteurl.com')
+    await page.getByRole('button', { name: 'create' }).click()
+
+    const blogEntry = page.locator('[data-testid="blog"]').filter({ hasText: 'Blog to delete' })
+    await expect(blogEntry).toBeVisible()
+
+    await blogEntry.getByRole('button', { name: 'view' }).click()
+    await expect(blogEntry.getByRole('button', { name: 'remove' })).toBeVisible()
+
+    page.once('dialog', dialog => dialog.accept())
+    await blogEntry.getByRole('button', { name: 'remove' }).click()
+
+    await expect(blogEntry).not.toBeVisible()
+  })
+ 
 })
+
 
 
 })
