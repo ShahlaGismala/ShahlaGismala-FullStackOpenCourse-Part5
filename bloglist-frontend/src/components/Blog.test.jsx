@@ -27,4 +27,15 @@ describe('<Blog />', () => {
 
     expect(div.querySelector('.blogDetails')).toBeNull()
   })
+
+  test('url and likes are shown when the details button is clicked', async () => {
+  render(<Blog blog={blog} />)
+
+  const user = userEvent.setup()
+  const button = screen.getByText('view')
+  await user.click(button)
+
+  screen.getByText('https://reactjs.org', { exact: false })
+  screen.getByText('likes', { exact: false })
+})
 })
