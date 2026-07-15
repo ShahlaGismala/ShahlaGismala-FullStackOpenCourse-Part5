@@ -34,24 +34,22 @@ const Blog = ({ blog, onUpdate, onDelete, currentUser }) => {
   const isCreator = blog.user?.username === currentUser?.username
 
   return (
-    <div style={blogStyle}>
-      <div>
+    <div className="blog" style={blogStyle}>
+      <div className="blogSummary">
         {blog.title} {blog.author}
         <button onClick={() => setDetailsVisible(!detailsVisible)}>
           {detailsVisible ? 'hide' : 'view'}
         </button>
       </div>
       {detailsVisible && (
-        <div>
+        <div className="blogDetails">
           <a href={blog.url}>{blog.url}</a>
-          <div>
-            likes {blog.likes}
+          <div className="likes">
+            likes {blog.likes}{' '}
             <button onClick={handleLike}>like</button>
           </div>
           <div>{blog.user?.name}</div>
-          {isCreator && (
-            <button onClick={handleDelete}>remove</button>
-          )}
+          {isCreator && <button onClick={handleDelete}>remove</button>}
         </div>
       )}
     </div>
