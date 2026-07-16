@@ -6,21 +6,61 @@ import Notification from './components/Notification'
 import BlogView from './components/BlogView'
 import CreateBlog from './components/CreateBlog'
 
-const Navigation = ({ user, handleLogout }) => (
-  <div>
-    <Link to="/">blogs</Link>
-    {' '}
-    {user ? (
-      <>
-        <Link to="/create">new blog</Link>
-        {' '}
-        <button onClick={handleLogout}>logout</button>
-      </>
-    ) : (
-      <Link to="/login">login</Link>
-    )}
-  </div>
-)
+const Navigation = ({ user, handleLogout }) => {
+  const navStyle = {
+    backgroundColor: '#1565c0',
+    padding: '16px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '24px',
+    marginBottom: '24px',
+  }
+
+  const brandStyle = {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: '20px',
+    textDecoration: 'none',
+    marginRight: 'auto',
+  }
+
+  const linkStyle = {
+    color: 'white',
+    textDecoration: 'none',
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    fontSize: '14px',
+    letterSpacing: '0.5px',
+  }
+
+  const logoutStyle = {
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: '1px solid white',
+    padding: '6px 16px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    fontSize: '14px',
+    letterSpacing: '0.5px',
+  }
+
+  return (
+    <div style={navStyle}>
+      <Link to="/" style={brandStyle}>Blog App</Link>
+      {user ? (
+        <>
+          <Link to="/" style={linkStyle}>blogs</Link>
+          <Link to="/create" style={linkStyle}>new blog</Link>
+          <button onClick={handleLogout} style={logoutStyle}>logout</button>
+        </>
+      ) : (
+        <Link to="/login" style={linkStyle}>login</Link>
+      )}
+    </div>
+  )
+}
 
 const BlogList = ({ blogs }) => (
   <div>
