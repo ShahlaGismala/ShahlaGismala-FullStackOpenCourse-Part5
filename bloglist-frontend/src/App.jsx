@@ -3,6 +3,7 @@ import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import BlogView from './components/BlogView'
 
 const Navigation = ({ user, handleLogout }) => (
   <div>
@@ -114,6 +115,10 @@ const App = () => {
     navigate('/')
   }
 
+  const handleBlogUpdate = (updatedBlog) => {
+  setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
+}
+
   return (
     <div>
       <Navigation user={user} handleLogout={handleLogout} />
@@ -127,6 +132,16 @@ const App = () => {
               onLogin={handleLogin}
               notification={notification}
               notificationType={notificationType}
+            />
+          }
+        />
+        <Route
+          path="/blogs/:id"
+          element={
+            <BlogView
+              blogs={blogs}
+              user={user}
+              onUpdate={handleBlogUpdate}
             />
           }
         />
