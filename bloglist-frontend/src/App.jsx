@@ -4,15 +4,21 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogView from './components/BlogView'
+import CreateBlog from './components/CreateBlog'
 
 const Navigation = ({ user, handleLogout }) => (
   <div>
     <Link to="/">blogs</Link>
     {' '}
-    {user
-      ? <button onClick={handleLogout}>logout</button>
-      : <Link to="/login">login</Link>
-    }
+    {user ? (
+      <>
+        <Link to="/create">new blog</Link>
+        {' '}
+        <button onClick={handleLogout}>logout</button>
+      </>
+    ) : (
+      <Link to="/login">login</Link>
+    )}
   </div>
 )
 
@@ -119,6 +125,16 @@ const App = () => {
   setBlogs(blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b))
 }
 
+  const handleBlogCreate = async (blogObject) => {
+    try {
+      const createdBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(createdBlog))
+      showNotification(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
+    } catch {
+      showNotification('failed to add blog', 'error')
+    }
+  }
+
   return (
     <div>
       <Navigation user={user} handleLogout={handleLogout} />
@@ -144,6 +160,10 @@ const App = () => {
               onUpdate={handleBlogUpdate}
             />
           }
+        />
+        <Route
+          path="/create"
+          element={<CreateBlog onCreate={handleBlogCreate} />}
         />
       </Routes>
     </div>
