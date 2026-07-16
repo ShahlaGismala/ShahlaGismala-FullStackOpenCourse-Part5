@@ -37,7 +37,7 @@ const BlogList = ({ blogs }) => (
   </div>
 )
 
-const LoginForm = ({ onLogin, notification, notificationType }) => {
+const LoginForm = ({ onLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
@@ -48,32 +48,72 @@ const LoginForm = ({ onLogin, notification, notificationType }) => {
     if (success) navigate('/')
   }
 
+  const formStyle = {
+    maxWidth: '400px',
+    margin: '40px auto',
+    padding: '30px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  }
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px',
+    margin: '8px 0 16px 0',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    fontSize: '16px',
+    boxSizing: 'border-box',
+  }
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '12px',
+    backgroundColor: '#1565c0',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+  }
+
+  const labelStyle = {
+    fontWeight: '500',
+    color: '#333',
+  }
+
   return (
-    <div>
+    <div style={formStyle}>
       <h2>Log in to application</h2>
-      <Notification message={notification} type={notificationType} />
       <form onSubmit={handleSubmit}>
         <div>
-          username
+          <label style={labelStyle}>username</label>
           <input
             type="text"
             value={username}
+            style={inputStyle}
+            placeholder="username"
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
         <div>
-          password
+          <label style={labelStyle}>password</label>
           <input
             type="password"
             value={password}
+            style={inputStyle}
+            placeholder="password"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button type="submit">login</button>
+        <button type="submit" style={buttonStyle}>login</button>
       </form>
     </div>
   )
-}
+} 
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
