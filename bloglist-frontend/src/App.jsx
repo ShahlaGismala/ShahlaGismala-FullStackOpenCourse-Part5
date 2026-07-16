@@ -216,36 +216,38 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div style={{ fontFamily: 'Arial, sans-serif', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <Navigation user={user} handleLogout={handleLogout} />
-      <Notification message={notification} type={notificationType} />
-      <Routes>
-        <Route path="/" element={<BlogList blogs={blogs} />} />
-        <Route
-          path="/login"
-          element={
-            <LoginForm
-              onLogin={handleLogin}
-              notification={notification}
-              notificationType={notificationType}
+      <div style={{ padding: '0 24px' }}></div>
+          <Notification message={notification} type={notificationType} />
+          <Routes>
+            <Route path="/" element={<BlogList blogs={blogs} />} />
+            <Route
+              path="/login"
+              element={
+                <LoginForm
+                  onLogin={handleLogin}
+                  notification={notification}
+                  notificationType={notificationType}
+                />
+              }
             />
-          }
-        />
-        <Route
-          path="/blogs/:id"
-          element={
-            <BlogView
-              blogs={blogs}
-              user={user}
-              onUpdate={handleBlogUpdate}
+            <Route
+              path="/blogs/:id"
+              element={
+                <BlogView
+                  blogs={blogs}
+                  user={user}
+                  onUpdate={handleBlogUpdate}
+                />
+              }
             />
-          }
-        />
-        <Route
-          path="/create"
-          element={<CreateBlog onCreate={handleBlogCreate} />}
-        />
-      </Routes>
+            <Route
+              path="/create"
+              element={<CreateBlog onCreate={handleBlogCreate} />}
+            />
+          </Routes>
+      <div />
     </div>
   )
 }
