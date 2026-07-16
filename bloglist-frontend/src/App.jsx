@@ -1,20 +1,79 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import Blog from './components/Blog'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
 import Notification from './components/Notification'
+
+const Navigation = ({ user, handleLogout }) => (
+  <div>
+    <Link to="/">blogs</Link>
+    {' '}
+    {user
+      ? <button onClick={handleLogout}>logout</button>
+      : <Link to="/login">login</Link>
+    }
+  </div>
+)
+
+const BlogList = ({ blogs }) => (
+  <div>
+    <h2>blogs</h2>
+    <ul>
+      {blogs.map(blog => (
+        <li key={blog.id}>
+          <Link to={`/blogs/${blog.id}`}>
+            {blog.title} by {blog.author}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+)
+
+const LoginForm = ({ onLogin, notification, notificationType }) => {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const navigate = useNavigate()
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const success = await onLogin(username, password)
+    if (success) navigate('/')
+  }
+
+  return (
+    <div>
+      <h2>Log in to application</h2>
+      <Notification message={notification} type={notificationType} />
+      <form onSubmit={handleSubmit}>
+        <div>
+          username
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+        <div>
+          password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit">login</button>
+      </form>
+    </div>
+  )
+}
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [notification, setNotification] = useState(null)
   const [notificationType, setNotificationType] = useState('success')
-
-  const blogFormRef = useRef()
+  const navigate = useNavigate()
 
   useEffect(() => {
     blogService.getAll().then(blogs => setBlogs(blogs))
@@ -35,17 +94,16 @@ const App = () => {
     setTimeout(() => setNotification(null), 5000)
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async (username, password) => {
     try {
       const loggedUser = await loginService.login({ username, password })
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(loggedUser))
       setUser(loggedUser)
       blogService.setToken(loggedUser.token)
-      setUsername('')
-      setPassword('')
+      return true
     } catch {
       showNotification('wrong username or password', 'error')
+      return false
     }
   }
 
@@ -53,78 +111,26 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     blogService.setToken(null)
-  }
-
-  const addBlog = async (blogObject) => {
-    try {
-      blogFormRef.current.toggleVisibility()
-      const createdBlog = await blogService.create(blogObject)
-      setBlogs(currentBlogs => currentBlogs.concat(createdBlog))
-      showNotification(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
-    } catch {
-      showNotification('failed to add blog', 'error')
-    }
-  }
-
-  const handleBlogUpdate = (updatedBlog) => {
-    setBlogs(currentBlogs => currentBlogs.map(b => (b.id === updatedBlog.id ? updatedBlog : b)))
-  }
-
-  const handleBlogDelete = (id) => {
-    setBlogs(currentBlogs => currentBlogs.filter(b => b.id !== id))
-  }
-
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-        <Notification message={notification} type={notificationType} />
-        <form onSubmit={handleLogin}>
-          <div>
-            username
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div>
-            password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
-      </div>
-    )
+    navigate('/')
   }
 
   return (
     <div>
-      <h2>blogs</h2>
+      <Navigation user={user} handleLogout={handleLogout} />
       <Notification message={notification} type={notificationType} />
-      <p>
-        {user.name} logged in
-        <button onClick={handleLogout}>logout</button>
-      </p>
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <BlogForm onCreate={addBlog} />
-      </Togglable>
-      {[...blogs]
-        .sort((a, b) => b.likes - a.likes)
-        .map(blog => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            onUpdate={handleBlogUpdate}
-            onDelete={handleBlogDelete}
-            currentUser={user}
-          />
-        ))
-      }
+      <Routes>
+        <Route path="/" element={<BlogList blogs={blogs} />} />
+        <Route
+          path="/login"
+          element={
+            <LoginForm
+              onLogin={handleLogin}
+              notification={notification}
+              notificationType={notificationType}
+            />
+          }
+        />
+      </Routes>
     </div>
   )
 }
